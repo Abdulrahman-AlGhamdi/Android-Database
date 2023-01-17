@@ -36,17 +36,39 @@ class UserDatabase(
         db.insert(TABLE_NAME, null, values)
     }
 
-    fun getUsers(): List<String> {
+    fun getUser(email: String): UserModel? {
         val db = readableDatabase
-        val users = arrayListOf<String>()
+        val query = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_EMAIL = '$email'"
+        val cursor = db.rawQuery(query, null)
+        var userInfo: UserModel? = null
+
+        if (cursor.moveToFirst()) {
+            val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+            val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
+            val email = cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL))
+
+            userInfo = UserModel(id = id, name = name, email = email)
+        }
+
+        return userInfo
+    }
+
+    fun getUsers(): List<UserModel> {
+        val db = readableDatabase
+        val users = arrayListOf<UserModel>()
         val query = "SELECT * FROM $TABLE_NAME"
 
         try {
             val cursor = db.rawQuery(query, null)
 
             while (cursor.moveToNext()) {
+                val id = cursor.getInt(cursor.getColumnIndex(COLUMN_ID))
+                val name = cursor.getString(cursor.getColumnIndex(COLUMN_NAME))
                 val email = cursor.getString(cursor.getColumnIndex(COLUMN_EMAIL))
-                users.add(email)
+
+                val userModel = UserModel(id = id, name = name, email = email)
+
+                users.add(userModel)
             }
 
         } catch (exception: SQLiteException) {

@@ -1,20 +1,16 @@
 package com.kotlin.androiddatabase
 
 import android.os.Bundle
-import android.util.Log
-import android.util.Patterns
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ListView
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.get
+import androidx.recyclerview.widget.RecyclerView
 
 class MainActivity : AppCompatActivity() {
 
     private val database = UserDatabase(this)
-    private lateinit var usersList: ListView
+    private lateinit var adapter: UserRecyclerView
+    private lateinit var usersList: RecyclerView
     private lateinit var userInput: EditText
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,16 +18,10 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         usersList = findViewById(R.id.users)
+        userInput = findViewById(R.id.email)
         val addButton = findViewById<Button>(R.id.add)
-        val userInput = findViewById<EditText>(R.id.email)
 
         listAdapter()
-
-        usersList.setOnItemClickListener { adapter, _, position, _ ->
-            Log.d("TAG", "onCreate: ${adapter.count}")
-            Log.d("TAG", "onCreate: $position")
-            Log.d("TAG", "onCreate: ${adapter.getItemAtPosition(position)}")
-        }
 
         addButton.setOnClickListener {
             val name = "Fahd"
@@ -45,12 +35,13 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listAdapter() {
-        val adapter = ArrayAdapter(
-            this,
-            android.R.layout.simple_list_item_1,
-            database.getUsers()
-        )
+        adapter = UserRecyclerView(database.getUsers())
 
         usersList.adapter = adapter
+    }
+
+    override fun onResume() {
+        super.onResume()
+//        listAdapter()
     }
 }
